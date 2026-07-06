@@ -437,7 +437,7 @@ read ROS logs, validate evidence, or approve a safety claim.
 
             ajpf_prop_override = st.text_area(
                 "ajpfProp_override",
-                "AJPF/MCAPL property: whenever geofence_violation or too_close percept occurs, the agent performs entry_stop",
+                "AJPF/MCAPL property: whenever geofence_violation is perceived, the agent commands entry_stop",
                 height=80,
             )
 
@@ -635,9 +635,8 @@ types, argument branches, and cautions. The graph below visualises a selected
 GSN structure derived from that guidance.
 
 It is not the whole guidance output and it is not a complete assurance case.
-It shows the top-level claim, main argument branches, key contexts, selected
-evidence expectations, and important limitations for the entered parameter
-bindings.
+It shows the top-level claim, main argument branches, key contexts, and selected
+evidence expectations for the entered parameter bindings.
 
 A complete assurance case would need to instantiate and justify all lower-level
 claims, attach the actual evidence artefacts, and address the stated limitations.
@@ -676,6 +675,17 @@ claims, attach the actual evidence artefacts, and address the stated limitations
             height=viewer_height + 60,
             scrolling=True,
         )
+
+        if result.cautions:
+            st.subheader("Cautions and limitations")
+            st.markdown(
+                """
+The cautions below are displayed outside the GSN visualisation because they are
+guidance notes, not GSN nodes.
+"""
+            )
+            for caution in result.cautions:
+                st.warning(caution)
 
         st.download_button(
             label="Download DOT",

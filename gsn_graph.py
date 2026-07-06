@@ -69,12 +69,6 @@ def generate_independent_safety_enforcement_dot(
     integration_evidence = dot_escape(params["integrationEvidence"])
     prism_prop_persist = dot_escape(params["prismProp_persist"])
 
-    cautions_text = (
-        "\\n".join(dot_escape(caution) for caution in result.cautions)
-        if result.cautions
-        else "No additional cautions selected."
-    )
-
     return f'''
 digraph IndependentSafetyEnforcement_Guidance {{
   graph [
@@ -217,14 +211,6 @@ digraph IndependentSafetyEnforcement_Guidance {{
     label="E_1_5\\nPersistence evidence\\n{prism_prop_persist}\\n{sim_evidence}\\n{phys_evidence}"
   ];
 
-  O_2 [
-    shape=box,
-    style="filled,rounded",
-    fillcolor="#FCE4D6",
-    color="#C55A11",
-    label="Cautions selected\\n{cautions_text}"
-  ];
-
   G_1 -> C_1_1 [style=dashed, arrowhead=onormal, label="InContextOf"];
   G_1 -> C_1_2 [style=dashed, arrowhead=onormal, label="InContextOf"];
   G_1 -> C_1_3 [style=dashed, arrowhead=onormal, label="InContextOf"];
@@ -242,7 +228,6 @@ digraph IndependentSafetyEnforcement_Guidance {{
   G_1_4 -> E_1_4 [label="SupportedBy"];
   G_1_4 -> C_1_4 [style=dashed, arrowhead=onormal, label="InContextOf"];
   G_1_5 -> E_1_5 [label="SupportedBy"];
-  G_1_5 -> O_2 [style=dashed, label="Limitations"];
 }}
 '''
 
@@ -279,7 +264,7 @@ def generate_independent_safety_enforcement_html_visualisation(
 
     scale = zoom_percent / 100
     base_width = 2200
-    base_height = 1280
+    base_height = 1050
     canvas_width = int(base_width * scale)
     canvas_height = int(base_height * scale)
 
@@ -309,12 +294,6 @@ def generate_independent_safety_enforcement_html_visualisation(
     arch_evidence = shorten(params["archEvidence"], 160)
     integration_evidence = shorten(params["integrationEvidence"], 160)
     prism_prop_persist = shorten(params["prismProp_persist"], 170)
-
-    cautions_text = (
-        "<br>".join(html_escape(caution) for caution in result.cautions)
-        if result.cautions
-        else "No additional cautions selected."
-    )
 
     nodes = []
 
@@ -440,35 +419,8 @@ def generate_independent_safety_enforcement_html_visualisation(
         )
     )
 
-    nodes.append(
-        node_html(
-            "O_1",
-            "Guidance output",
-            "This visualisation shows selected GSN guidance only. It does not validate evidence or approve the safety claim.",
-            "output",
-            760,
-            1040,
-            620,
-            120,
-        )
-    )
-
-    nodes.append(
-        node_html(
-            "O_2",
-            "Cautions selected",
-            cautions_text,
-            "caution",
-            1430,
-            1040,
-            650,
-            150,
-        )
-    )
-
-    # SVG lines are approximate visual connectors for the selected GSN skeleton.
     lines = """
-    <svg class="links" width="2200" height="1280" viewBox="0 0 2200 1280">
+    <svg class="links" width="2200" height="1050" viewBox="0 0 2200 1050">
         <defs>
             <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
                 <path d="M0,0 L0,6 L8,3 z" fill="#666" />
@@ -478,35 +430,24 @@ def generate_independent_safety_enforcement_html_visualisation(
             </marker>
         </defs>
 
-        <!-- context links to G_1 -->
         <line x1="540" y1="110" x2="650" y2="110" stroke="#888" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowDashed)" />
         <line x1="1660" y1="125" x2="1550" y2="115" stroke="#888" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowDashed)" />
 
-        <!-- G_1 to S_1 -->
         <line x1="1100" y1="175" x2="1100" y2="235" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
 
-        <!-- S_1 to branch goals -->
         <line x1="1100" y1="350" x2="230" y2="430" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1100" y1="350" x2="670" y2="430" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1100" y1="350" x2="1110" y2="430" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1100" y1="350" x2="1550" y2="430" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1100" y1="350" x2="1990" y2="430" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
 
-        <!-- branch goals to evidence -->
         <line x1="230" y1="565" x2="230" y2="650" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="670" y1="565" x2="670" y2="650" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1110" y1="565" x2="1110" y2="650" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1550" y1="565" x2="1550" y2="650" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
         <line x1="1990" y1="565" x2="1990" y2="650" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
 
-        <!-- formal verification branch to timing justification -->
         <line x1="1550" y1="820" x2="1550" y2="875" stroke="#888" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowDashed)" />
-
-        <!-- persistence branch to guidance output -->
-        <line x1="1990" y1="820" x2="1370" y2="1040" stroke="#555" stroke-width="2.5" marker-end="url(#arrow)" />
-
-        <!-- guidance output to cautions -->
-        <line x1="1380" y1="1100" x2="1430" y2="1100" stroke="#888" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowDashed)" />
     </svg>
     """
 
@@ -602,17 +543,6 @@ def generate_independent_safety_enforcement_html_visualisation(
             background: #D9EAD3;
             border: 2px solid #6AA84F;
             border-radius: 50px;
-        }}
-
-        .output {{
-            background: #D9EAD3;
-            border: 2px solid #6AA84F;
-            border-radius: 50px;
-        }}
-
-        .caution {{
-            background: #FCE4D6;
-            border: 2px solid #C55A11;
         }}
     </style>
 
